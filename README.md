@@ -1,12 +1,10 @@
-# three-app
+# perspective-projection-dataset
 
-:warning:*****under development*****:warning:  
-
-[![pages-build-deployment](https://github.com/minoru-github/three-app/actions/workflows/pages/pages-build-deployment/badge.svg?branch=gh-pages)](https://github.com/minoru-github/three-app/actions/workflows/pages/pages-build-deployment)  
-https://minoru-github.github.io/three-app/
+<https://minoru-github.github.io/perspective-projection-dataset/>
 
 + Purpose
-  + annotate point cloud data with 3d box
+  + generate pcd and image dataset
+  + to verificate 3D annotation tool
 + Installation
   + library install from package.json  
     `npm install`
@@ -16,6 +14,3 @@ https://minoru-github.github.io/three-app/
     `npm run deploy`
   + launch a local server  
     `npm run start`
-
-+ Reference
-  + https://automan.ai/
