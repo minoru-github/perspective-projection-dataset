@@ -2,9 +2,6 @@ import * as THREE from "three";
 import { Scene } from "three";
 
 import { tickMainCamera } from "./camerasThreeJS/main-camera";
-import { tickTopCamera } from './camerasThreeJS/top-camera';
-import { tickFrontCamera } from './camerasThreeJS/front-camera';
-import { tickSideCamera } from './camerasThreeJS/side-camera';
 
 // シーンを作成
 const scene = new THREE.Scene();
@@ -22,9 +19,6 @@ addLight(scene);
 
 export function tick3dSpace() {
     tickMainCamera(scene);
-    tickTopCamera(scene);
-    tickFrontCamera(scene);
-    tickSideCamera(scene);
 }
 
 function addHelpers(scene: Scene) {
