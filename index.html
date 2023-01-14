@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+</head>
+
+<body>
+    <input type="file" id="inputFiles" multiple><br>
+    <div>
+        <canvas id="left_image" width="0", height="0"></canvas><br>
+        <canvas id="right_image" width="0" , height="0"></canvas><br>
+    </div>
+    <div>
+        <canvas id="mainCameraCanvas" width="1210" height="375"></canvas><br>
+        <canvas id="topCameraCanvas" width="400" height="200"></canvas>
+        <canvas id="frontCameraCanvas" width="400" height="200"></canvas>
+        <canvas id="sideCameraCanvas" width="400" height="200"></canvas>
+    </div>
+
+    <div>
+        赤:X軸  緑:Y軸 青:Z軸
+    </div>
+    <div>
+        回転：左クリック＋マウス移動
+        <br>
+        並進移動: 右クリック＋マウス移動
+        <br>
+        ※並進移動後、ホイールでのzoom量がでかくなる(原因と対策わからん)
+        <br>
+        ゆっくりzoom: ctrl+ホイール
+    </div>
+    <textarea id="text" rows="4" cols="100" readonly></textarea><br>
+</body>
+
+</html>
