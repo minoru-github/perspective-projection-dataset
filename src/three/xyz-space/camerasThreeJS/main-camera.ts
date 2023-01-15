@@ -15,7 +15,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(canvas.width, canvas.height);
 
 const mainCamera = new THREE.PerspectiveCamera(60, canvas.width / canvas.height, 1, 10000);
-mainCamera.position.set(0, 15, -20);
+mainCamera.position.set(0, 1.5, -2.5);
 
 const controls = new OrbitControls(mainCamera, canvas);
 controls.maxPolarAngle = Math.PI / 2;
