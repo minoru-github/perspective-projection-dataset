@@ -1,5 +1,5 @@
 import { depth } from "../xyz-space/depth/depth";
-import { leftImage, rightImage } from "../rgb-image/rgb-image";
+import { image } from "../rgb-image/rgb-image";
 
 export function onChangeInputFiles(event: any) {
     let files = event.target.files as FileList;
@@ -17,18 +17,12 @@ export function onChangeInputFiles(event: any) {
             if (file.name.match(/\.pcd/)) {
                 return resolve(depth.addData(file));
             } else if (file.name.match(/\.(png|bmp|jpg)/)) {
-                if (file.name.match(/left_image/)) {
-                    return resolve(leftImage.addData(file));
-                } else if (file.name.match(/right_image/)) {
-                    return resolve(rightImage.addData(file));
-                }
+                return resolve(image.addData(file));
             } else if (file.name.match(/\.json/)) {
                 if (file.name.match(/depth/)) {
                     return resolve(depth.setCalib(file));
-                } else if (file.name.match(/left_image/)) {
-                    return resolve(leftImage.setCalib(file));
-                } else if (file.name.match(/right_image/)) {
-                    return resolve(rightImage.setCalib(file));
+                } else if (file.name.match(/image/)) {
+                    return resolve(image.setCalib(file));
                 }
             } else {
                 // README.md等描画に関係ないファイル読み込んだとき用
@@ -40,8 +34,7 @@ export function onChangeInputFiles(event: any) {
     Promise.all(results).then(() => {
         const frame = 0;
         depth.draw(frame);
-        leftImage.draw(frame);
-        rightImage.draw(frame);
+        image.draw(frame);
     })
 
 }

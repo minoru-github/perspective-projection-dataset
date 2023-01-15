@@ -86,21 +86,17 @@ class RgbImage {
 }
 
 function drawRgbImages(file: File) {
-    const result = file.name.match(/left_image|right_image/);
+    const result = file.name.match(/image/);
     if (result == null) {
+        console.assert('failed at drawRgbImages');
         return;
     }
 
-    const leftOrRight = result[0];
-    if (leftOrRight == "right_image") {
-        drawCameraFov(rightImage.sensor_position,rightImage.fov);
-    } else {
-        drawCameraFov(leftImage.sensor_position, leftImage.fov);
-    }
+    drawCameraFov(image.sensor_position, image.fov);
 
     const promise = createDataURL(file);
     promise.then((path: string) => {
-        setImageToCanvas(path, leftOrRight);
+        setImageToCanvas(path);
     })
 
     function createDataURL(file: File) {
@@ -116,11 +112,11 @@ function drawRgbImages(file: File) {
         return promise;
     }
 
-    function setImageToCanvas(path: string, leftOrRight: string) {
+    function setImageToCanvas(path: string) {
         const image = new Image();
         image.src = path;
         image.onload = function () {
-            const canvas = document.getElementById(leftOrRight) as HTMLCanvasElement;
+            const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
             let context = canvas.getContext("2d");
             canvas.width = image.width;
             canvas.height = image.height;
@@ -131,5 +127,4 @@ function drawRgbImages(file: File) {
     }
 }
 
-export const leftImage = new RgbImage();
-export const rightImage = new RgbImage();
+export const image = new RgbImage();
