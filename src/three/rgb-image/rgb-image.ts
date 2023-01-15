@@ -64,7 +64,7 @@ class RgbImage {
         const projectFromXYZ = (inX_m: number, inY_m: number, inZ_m: number) => {
             const mat3x4 = this.projection_matrix;
             // three.jsとcamera座標系のxyが逆なので符号反転
-            const { x_pix, y_pix } = dot(-1 * x_m, -1 * y_m, z_m, mat3x4);
+            const { x_pix, y_pix } = dot(-1 * inX_m, -1 * inY_m, inZ_m, mat3x4);
 
             return { x_pix, y_pix };
         }
