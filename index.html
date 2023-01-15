@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+<script defer src="main.js"></script></head>
+
+<body>
+    <input type="file" id="inputFiles" multiple><br>
+    <div>
+        <canvas id="mainCameraCanvas" width="800" height="400"></canvas><br>
+    </div>
+    <div>
+        <canvas id="imageCanvas" width="0" , height="0"></canvas><br>
+    </div>
+    <div>
+        赤:X軸  緑:Y軸 青:Z軸
+    </div>
+    <div>
+        回転：左クリック＋マウス移動
+        <br>
+        並進移動: 右クリック＋マウス移動
+        <br>
+        ※並進移動後、ホイールでのzoom量がでかくなる(原因と対策わからん)
+        <br>
+        ゆっくりzoom: ctrl+ホイール
+    </div>
+    <textarea id="text" rows="4" cols="100" readonly></textarea><br>
+</body>
+
+</html>
