@@ -1,16 +1,16 @@
 {
     "kind": "rgb_camera",
     "size": {
-        "width_pix": 480,
-        "height_pix": 240
+        "width_pix": 800,
+        "height_pix": 400
     },
     "focal_length": {
         "fx_pix": 9.895267e+02,
         "fy_pix": 9.878386e+02
     },
     "optical_center": {
-        "cx_pix": 0.0,
-        "cy_pix": 0.0
+        "cx_pix": 400.0,
+        "cy_pix": 200.0
     },
     "field_of_view": {
         "fovx_deg": 90
@@ -37,7 +37,7 @@
             0.000000e+00,
             0.000000e+00,
             1.000000e+00,
-            2.745884e-03
+            0.000000e+00
         ]
     ]
 }

@@ -2,7 +2,7 @@
     "kind": "lidar",
     "sensor_position": {
         "x_m": 0.0,
-        "y_m": 1.73,
+        "y_m": 0.0,
         "z_m": 0.0
     },
     "coordinate_system": {
