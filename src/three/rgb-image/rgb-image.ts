@@ -1,4 +1,5 @@
 import { drawCameraFov } from "../xyz-space/camerasThreeJS/camera-fov";
+import { depth } from "../xyz-space/depth/depth";
 
 class RgbImage {
     data: File[] = new Array();
@@ -124,6 +125,27 @@ function drawRgbImages(file: File) {
                 context.drawImage(image, 0, 0);
             }
         }
+    }
+}
+
+export function addPointsToImage(points: THREE.Vector3[]) {
+    console.log(points);
+    const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+    let context = canvas.getContext("2d");
+    if (context != null) {
+        context.fillStyle = "red";
+        context.beginPath();
+        context.strokeStyle = "#00FFFF";
+        for (let index = 0; index < points.length; index++) {
+            const { x_m, y_m, z_m } = depth.toDepthSensorCoord(points[index].x, points[index].y, points[index].z);
+            const { x_pix, y_pix } = image.projectToImage(x_m, y_m, z_m);
+
+            if (index == 0) {
+                context.moveTo(x_pix, y_pix);
+            }
+            context.lineTo(x_pix, y_pix);
+        }
+        context.stroke();
     }
 }
 
