@@ -44,6 +44,7 @@ function drawImageArea(camera_pos: { x_m: number, y_m: number, z_m: number }, fo
     points.push(rightUp);
     points.push(cameraPos);
     points.push(rightdown);
+    points.push(leftdown);
 
     const material = new THREE.LineBasicMaterial({ color: 0xFF00FF });
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
