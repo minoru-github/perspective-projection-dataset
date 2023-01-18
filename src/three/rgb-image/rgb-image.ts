@@ -51,10 +51,12 @@ class RgbImage {
     }
 
     draw(frame: number) {
-        if (this.frames < frame || this.data.length == 0) {
-            return;
-        }
-        drawRgbImages(this.data[frame]);
+        return new Promise<string>((resolve, reject) => {
+            if (this.frames < frame || this.data.length == 0) {
+                return Promise.reject("error");
+            }
+            return drawRgbImages(this.data[frame]); 
+        } )
     }
 
     totalFrames() {
@@ -129,8 +131,8 @@ function drawRgbImages(file: File) {
 }
 
 export function addPointsToImage(points: THREE.Vector3[]) {
-    console.log(points);
     const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+    console.log(canvas);
     let context = canvas.getContext("2d");
     if (context != null) {
         context.fillStyle = "red";
@@ -140,6 +142,8 @@ export function addPointsToImage(points: THREE.Vector3[]) {
             const { x_m, y_m, z_m } = depth.toDepthSensorCoord(points[index].x, points[index].y, points[index].z);
             const { x_pix, y_pix } = image.projectToImage(x_m, y_m, z_m);
 
+            console.log(x_m, y_m, z_m);
+            console.log(x_pix, y_pix);
             if (index == 0) {
                 context.moveTo(x_pix, y_pix);
             }

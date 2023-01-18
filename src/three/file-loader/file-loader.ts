@@ -33,8 +33,11 @@ export function onChangeInputFiles(event: any) {
 
     Promise.all(results).then(() => {
         const frame = 0;
-        depth.draw(frame);
-        image.draw(frame);
+        const promise = image.draw(frame);
+        promise.then(() => {
+                depth.draw(frame);
+            }
+        )
     })
 
 }
