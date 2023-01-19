@@ -65,7 +65,6 @@ class Depth {
             const point = new THREE.Vector3(xyzVec[3 * i + 0], xyzVec[3 * i + 1], xyzVec[3 * i + 2]);
             points.push(point);
         }
-        // TODO pointsは生成されてるようだがimageCanvasに表示されない
         addPointsToImage(points);
     }
 
