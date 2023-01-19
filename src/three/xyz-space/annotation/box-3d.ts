@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { sceneXyz } from "../xyz-space";
-import { addAnnotationBoxToImage } from "../../rgb-image/annotated-box";
+import { addLinesToImage } from "../../rgb-image/rgb-image";
 
 import { text } from "../../../html/element";
 import { Camera, Scene } from "three";
@@ -16,7 +16,7 @@ function setBox() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addAnnotationBoxToImage(points);
+    addLinesToImage(points);
 }
 
 function setBox0() {
@@ -26,7 +26,7 @@ function setBox0() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addAnnotationBoxToImage(points);
+    addLinesToImage(points);
 }
 
 function setBox1() {
@@ -36,7 +36,7 @@ function setBox1() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addAnnotationBoxToImage(points);
+    addLinesToImage(points);
 }
 
 function setBox2() {
@@ -46,7 +46,7 @@ function setBox2() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addAnnotationBoxToImage(points);
+    addLinesToImage(points);
 }
 
 function setBox3() {
@@ -56,7 +56,7 @@ function setBox3() {
     addBoxToGroup(center_m, size_m, rotation);
     
     const points = createLinePoints(center_m, size_m, rotation);
-    addAnnotationBoxToImage(points);
+    addLinesToImage(points);
 }
 
 export const annotatedBoxes = new Array<THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial>>;
@@ -170,13 +170,13 @@ class Rotation {
 
 export const box3d = {
     x_m: 0,
-    y_m: 0,
-    z_m: 10,
-    center_m: new THREE.Vector3(0, 0, 10),
-    w_m: 1,
-    h_m: 1.5,
-    d_m: 1,
-    size_m: new THREE.Vector3(1, 1.5, 1),
+    y_m: -1,
+    z_m: 4,
+    center_m: new THREE.Vector3(0, -1, 5),
+    w_m: 2.0,
+    h_m: 2.0,
+    d_m: 2.0,
+    size_m: new THREE.Vector3(2, 2, 2),
     pitch_deg: 0.0,
     yaw_deg: 0.0,
     roll_deg: 0.0,

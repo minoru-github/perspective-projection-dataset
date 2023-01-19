@@ -1,4 +1,5 @@
 import { drawCameraFov } from "../xyz-space/camerasThreeJS/camera-fov";
+import { depth } from "../xyz-space/depth/depth";
 
 class RgbImage {
     data: File[] = new Array();
@@ -51,9 +52,9 @@ class RgbImage {
 
     draw(frame: number) {
         if (this.frames < frame || this.data.length == 0) {
-            return;
+            console.assert("invalid data");
         }
-        drawRgbImages(this.data[frame]);
+        return drawRgbImages(this.data[frame]);
     }
 
     totalFrames() {
@@ -89,14 +90,15 @@ function drawRgbImages(file: File) {
     const result = file.name.match(/image/);
     if (result == null) {
         console.assert('failed at drawRgbImages');
-        return;
     }
 
-    drawCameraFov(image.sensor_position, image.fov);
+    return new Promise<void>((resolve) => {
+        drawCameraFov(image.sensor_position, image.fov);
 
-    const promise = createDataURL(file);
-    promise.then((path: string) => {
-        setImageToCanvas(path);
+        const promise = createDataURL(file);
+        promise.then((path: string) => {
+            resolve(setImageToCanvas(path));
+        })
     })
 
     function createDataURL(file: File) {
@@ -115,14 +117,52 @@ function drawRgbImages(file: File) {
     function setImageToCanvas(path: string) {
         const image = new Image();
         image.src = path;
-        image.onload = function () {
-            const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
-            let context = canvas.getContext("2d");
-            canvas.width = image.width;
-            canvas.height = image.height;
-            if (context != null) {
-                context.drawImage(image, 0, 0);
+        return new Promise<void>((resolve) => {
+            image.onload = function () {
+                const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+                let context = canvas.getContext("2d");
+                canvas.width = image.width;
+                canvas.height = image.height;
+                if (context != null) {
+                    resolve(context?.drawImage(image, 0, 0));
+                }
             }
+        })
+    }
+}
+
+export function addLinesToImage(points: THREE.Vector3[]) {
+    const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+    console.log(canvas);
+    let context = canvas.getContext("2d");
+    if (context != null) {
+        context.fillStyle = "red";
+        context.beginPath();
+        context.strokeStyle = "#00FFFF";
+        for (let index = 0; index < points.length; index++) {
+            const { x_m, y_m, z_m } = depth.toDepthSensorCoord(points[index].x, points[index].y, points[index].z);
+            const { x_pix, y_pix } = image.projectToImage(x_m, y_m, z_m);
+
+            if (index == 0) {
+                context.moveTo(x_pix, y_pix);
+            }
+            context.lineTo(x_pix, y_pix);
+        }
+        context.stroke();
+    }
+}
+
+export function addPointsToImage(points: THREE.Vector3[]) {
+    const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+    console.log(canvas);
+    let context = canvas.getContext("2d");
+    if (context != null) {
+        context.fillStyle = "red";
+        context.beginPath();
+        for (let index = 0; index < points.length; index++) {
+            const { x_m, y_m, z_m } = depth.toDepthSensorCoord(points[index].x, points[index].y, points[index].z);
+            const { x_pix, y_pix } = image.projectToImage(x_m, y_m, z_m);
+            context.fillRect(x_pix - 5, y_pix - 5, 10, 10);
         }
     }
 }
