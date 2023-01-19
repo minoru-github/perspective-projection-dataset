@@ -51,12 +51,10 @@ class RgbImage {
     }
 
     draw(frame: number) {
-        return new Promise<string>((resolve, reject) => {
-            if (this.frames < frame || this.data.length == 0) {
-                return Promise.reject("error");
-            }
-            return drawRgbImages(this.data[frame]); 
-        } )
+        if (this.frames < frame || this.data.length == 0) {
+            console.assert("invalid data");
+        }
+        return drawRgbImages(this.data[frame]);
     }
 
     totalFrames() {
@@ -92,14 +90,15 @@ function drawRgbImages(file: File) {
     const result = file.name.match(/image/);
     if (result == null) {
         console.assert('failed at drawRgbImages');
-        return;
     }
 
-    drawCameraFov(image.sensor_position, image.fov);
-
-    const promise = createDataURL(file);
-    promise.then((path: string) => {
-        setImageToCanvas(path);
+    return new Promise<void>((resolve) => {
+        drawCameraFov(image.sensor_position, image.fov);
+    
+        const promise = createDataURL(file);
+        promise.then((path: string) => {
+            resolve(setImageToCanvas(path));
+        })
     })
 
     function createDataURL(file: File) {
@@ -118,15 +117,17 @@ function drawRgbImages(file: File) {
     function setImageToCanvas(path: string) {
         const image = new Image();
         image.src = path;
-        image.onload = function () {
-            const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
-            let context = canvas.getContext("2d");
-            canvas.width = image.width;
-            canvas.height = image.height;
-            if (context != null) {
-                context.drawImage(image, 0, 0);
+        return new Promise<void>((resolve) => {
+            image.onload = function () {
+                const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+                let context = canvas.getContext("2d");
+                canvas.width = image.width;
+                canvas.height = image.height;
+                if (context != null) {
+                    resolve(context?.drawImage(image, 0, 0));
+                }
             }
-        }
+        })
     }
 }
 
