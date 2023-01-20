@@ -10,7 +10,7 @@ export class IntrinsicParameter {
         this.cy_pix = cy_pix;
     }
 
-    matrix() {
+    get_matrix() {
         return [
             [this.fx_pix, 0.0, this.cx_pix],
             [0.0, this.fy_pix, this.cy_pix],
@@ -35,7 +35,7 @@ export class ExtrinsicParameter {
         this.tz_mm = tz_mm;
     }
 
-    matrix() {
+    get_matrix() {
         return [
             [this.r[0][0], this.r[0][1], this.r[0][2], this.tx_mm],
             [this.r[1][0], this.r[1][1], this.r[1][2], this.ty_mm],
