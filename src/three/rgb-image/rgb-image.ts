@@ -1,8 +1,11 @@
 import { drawCameraFov } from "../xyz-space/camerasThreeJS/camera-fov";
 import { depth } from "../xyz-space/depth/depth";
+import { IntrinsicParameter, ExtrinsicParameter } from "../xyz-space/camerasThreeJS/camera-parameter";
 
 class RgbImage {
     data: File[] = new Array();
+    intrinsic_parameter: IntrinsicParameter | null = null;
+    extrinsic_parameter: ExtrinsicParameter | null = null;
     sensor_position = {
         "x_m": 0.0,
         "y_m": 0.0,
@@ -14,11 +17,7 @@ class RgbImage {
         "x_rad": 0.0,
         "y_rad": 0.0,
     }
-    projection_matrix = [
-        [0.0, 0.0, 0.0, 0.0,],
-        [0.0, 0.0, 0.0, 0.0,],
-        [0.0, 0.0, 0.0, 0.0,],
-    ];
+
     frames: number = 0;
     constructor() {
         this.data = new Array<File>();
@@ -44,7 +43,9 @@ class RgbImage {
                 this.fov.y_deg = json.field_of_view.fovx_deg * (json.size.height_pix / json.size.width_pix);
                 this.fov.x_rad = this.fov.x_deg * Math.PI / 180;
                 this.fov.y_rad = this.fov.y_deg * Math.PI / 180;
-                this.projection_matrix = json.projection_matrix;
+                this.intrinsic_parameter = new IntrinsicParameter(json.focal_length.fx_pix, json.focal_length.fy_pix, json.optical_center.cx_pix, json.optical_center.cy_pix)
+                // TODO 仮
+                this.extrinsic_parameter = new ExtrinsicParameter(0.0, 0.0, 0.0);
                 resolve(file);
             })
         })
@@ -62,8 +63,37 @@ class RgbImage {
     }
 
     projectToImage(x_m: number, y_m: number, z_m: number) {
+        const computeProjectMatrix = () => {
+            const mat3x4: number[][] = [
+                [0.0, 0.0, 0.0, 0.0,],
+                [0.0, 0.0, 0.0, 0.0,],
+                [0.0, 0.0, 0.0, 0.0,],
+            ];
+            if (this.intrinsic_parameter == null || this.extrinsic_parameter == null) {
+                return mat3x4;
+            }
+            let in_mat = this.intrinsic_parameter.get_matrix();
+            let ex_mat = this.extrinsic_parameter.get_matrix();
+            mat3x4[0][0] = in_mat[0][0] * ex_mat[0][0] + in_mat[0][1] * ex_mat[1][0] + in_mat[0][2] * ex_mat[2][0];
+            mat3x4[0][1] = in_mat[0][0] * ex_mat[0][1] + in_mat[0][1] * ex_mat[1][1] + in_mat[0][2] * ex_mat[2][1];
+            mat3x4[0][2] = in_mat[0][0] * ex_mat[0][2] + in_mat[0][1] * ex_mat[1][2] + in_mat[0][2] * ex_mat[2][2];
+            mat3x4[0][3] = in_mat[0][0] * ex_mat[0][3] + in_mat[0][1] * ex_mat[1][3] + in_mat[0][2] * ex_mat[2][3];
+
+            mat3x4[1][0] = in_mat[1][0] * ex_mat[1][0] + in_mat[1][1] * ex_mat[1][0] + in_mat[1][2] * ex_mat[2][0];
+            mat3x4[1][1] = in_mat[1][0] * ex_mat[1][1] + in_mat[1][1] * ex_mat[1][1] + in_mat[1][2] * ex_mat[2][1];
+            mat3x4[1][2] = in_mat[1][0] * ex_mat[1][2] + in_mat[1][1] * ex_mat[1][2] + in_mat[1][2] * ex_mat[2][2];
+            mat3x4[1][3] = in_mat[1][0] * ex_mat[1][3] + in_mat[1][1] * ex_mat[1][3] + in_mat[1][2] * ex_mat[2][3];
+
+            mat3x4[2][0] = in_mat[2][0] * ex_mat[1][0] + in_mat[2][1] * ex_mat[1][0] + in_mat[2][2] * ex_mat[2][0];
+            mat3x4[2][1] = in_mat[2][0] * ex_mat[1][1] + in_mat[2][1] * ex_mat[1][1] + in_mat[2][2] * ex_mat[2][1];
+            mat3x4[2][2] = in_mat[2][0] * ex_mat[1][2] + in_mat[2][1] * ex_mat[1][2] + in_mat[2][2] * ex_mat[2][2];
+            mat3x4[2][3] = in_mat[2][0] * ex_mat[1][3] + in_mat[2][1] * ex_mat[1][3] + in_mat[2][2] * ex_mat[2][3];
+
+            return mat3x4;
+        }
+
         const projectFromXYZ = (inX_m: number, inY_m: number, inZ_m: number) => {
-            const mat3x4 = this.projection_matrix;
+            const mat3x4 = computeProjectMatrix();
             // three.jsとcamera座標系のxyが逆なので符号反転
             const { x_pix, y_pix } = dot(-1 * inX_m, -1 * inY_m, inZ_m, mat3x4);
 
