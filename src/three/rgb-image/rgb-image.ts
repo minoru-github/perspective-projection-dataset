@@ -35,29 +35,6 @@ class RgbImage {
     }
 
     projectToImage(x_m: number, y_m: number, z_m: number) {
-        function computeDot(mat_a: number[][], mat_b: number[][]) {
-            const mat_a_col_size = mat_a.length;
-            const mat_b_row_size = mat_b[0].length;
-
-            const mat_out: number[][] = [];
-            for (var i = 0; i < mat_a_col_size; i++) {
-                mat_out[i] = [];
-                for (var j = 0; j < mat_b_row_size; j++) {
-                    mat_out[i][j] = 0;
-                }
-            }
-
-            for (var i = 0; i < mat_a_col_size; i++) {
-                for (var j = 0; j < mat_b_row_size; j++) {
-                    for (var k = 0; k < mat_a_col_size; k++) {
-                        mat_out[i][j] += mat_a[i][k] * mat_b[k][j];
-                    }
-                }
-            }
-
-            return mat_out;
-        }
-
         const computeProjectMatrix = () => {
             let mat3x4: number[][] = [
                 [0.0, 0.0, 0.0, 0.0,],
@@ -70,28 +47,28 @@ class RgbImage {
             if (this.camera_param.intrinsic == null || this.camera_param.extrinsic == null) {
                 return mat3x4;
             }
-            let in_mat = this.camera_param.intrinsic.get_matrix();
-            let ex_mat = this.camera_param.extrinsic.get_matrix();
 
-            mat3x4 = computeDot(in_mat, ex_mat);
+            mat3x4 = computeDot(
+                this.camera_param.intrinsic.get_matrix(),
+                this.camera_param.extrinsic.get_matrix()
+            );
 
             return mat3x4;
         }
 
-        const projectFromXYZ = (inX_m: number, inY_m: number, inZ_m: number) => {
+        const projectFromXYZ = (x_m: number, y_m: number, z_m: number) => {
             const mat3x4 = computeProjectMatrix();
             // three.jsとcamera座標系のxyが逆なので符号反転
-            const { x_pix, y_pix } = dot(-1 * inX_m, -1 * inY_m, inZ_m, mat3x4);
+            const xyz = [
+                [-1 * x_m],
+                [-1 * y_m],
+                [z_m],
+            ];
 
-            return { x_pix, y_pix };
-        }
-
-        const dot = (x_m: number, y_m: number, z_m: number, mat3x4: number[][]) => {
-            const mat3x1_0 = mat3x4[0][0] * x_m + mat3x4[0][1] * y_m + mat3x4[0][2] * z_m + mat3x4[0][3];
-            const mat3x1_1 = mat3x4[1][0] * x_m + mat3x4[1][1] * y_m + mat3x4[1][2] * z_m + mat3x4[1][3];
-            const mat3x1_2 = mat3x4[2][0] * x_m + mat3x4[2][1] * y_m + mat3x4[2][2] * z_m + mat3x4[2][3];
-            const x_pix = mat3x1_0 / mat3x1_2;
-            const y_pix = mat3x1_1 / mat3x1_2;
+            // xyzとの行列積計算して、z'で割って同次座標系にする
+            const mat3x1 = computeDot(mat3x4, xyz);
+            const x_pix = mat3x1[0][0] / mat3x1[2][0];
+            const y_pix = mat3x1[1][0] / mat3x1[2][0];
 
             return { x_pix, y_pix };
         }
@@ -100,6 +77,29 @@ class RgbImage {
         const { x_pix, y_pix } = projectFromXYZ(x_m, y_m, z_m);
         return { x_pix, y_pix };
     }
+}
+
+function computeDot(mat_a: number[][], mat_b: number[][]) {
+    const mat_a_col_size = mat_a.length;
+    const mat_b_row_size = mat_b[0].length;
+
+    const mat_out: number[][] = [];
+    for (var i = 0; i < mat_a_col_size; i++) {
+        mat_out[i] = [];
+        for (var j = 0; j < mat_b_row_size; j++) {
+            mat_out[i][j] = 0;
+        }
+    }
+
+    for (var i = 0; i < mat_a_col_size; i++) {
+        for (var j = 0; j < mat_b_row_size; j++) {
+            for (var k = 0; k < mat_a_col_size; k++) {
+                mat_out[i][j] += mat_a[i][k] * mat_b[k][j];
+            }
+        }
+    }
+
+    return mat_out;
 }
 
 function drawRgbImages(file: File) {
