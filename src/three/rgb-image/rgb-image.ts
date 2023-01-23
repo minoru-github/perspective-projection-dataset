@@ -49,20 +49,29 @@ class RgbImage {
             }
             let in_mat = this.camera_param.intrinsic.get_matrix();
             let ex_mat = this.camera_param.extrinsic.get_matrix();
-            mat3x4[0][0] = in_mat[0][0] * ex_mat[0][0] + in_mat[0][1] * ex_mat[1][0] + in_mat[0][2] * ex_mat[2][0];
-            mat3x4[0][1] = in_mat[0][0] * ex_mat[0][1] + in_mat[0][1] * ex_mat[1][1] + in_mat[0][2] * ex_mat[2][1];
-            mat3x4[0][2] = in_mat[0][0] * ex_mat[0][2] + in_mat[0][1] * ex_mat[1][2] + in_mat[0][2] * ex_mat[2][2];
-            mat3x4[0][3] = in_mat[0][0] * ex_mat[0][3] + in_mat[0][1] * ex_mat[1][3] + in_mat[0][2] * ex_mat[2][3];
 
-            mat3x4[1][0] = in_mat[1][0] * ex_mat[1][0] + in_mat[1][1] * ex_mat[1][0] + in_mat[1][2] * ex_mat[2][0];
-            mat3x4[1][1] = in_mat[1][0] * ex_mat[1][1] + in_mat[1][1] * ex_mat[1][1] + in_mat[1][2] * ex_mat[2][1];
-            mat3x4[1][2] = in_mat[1][0] * ex_mat[1][2] + in_mat[1][1] * ex_mat[1][2] + in_mat[1][2] * ex_mat[2][2];
-            mat3x4[1][3] = in_mat[1][0] * ex_mat[1][3] + in_mat[1][1] * ex_mat[1][3] + in_mat[1][2] * ex_mat[2][3];
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 4; j++) {
+                    for (var k = 0; k < 3; k++) {
+                        mat3x4[i][j] += in_mat[i][k] * ex_mat[k][j];
+                    }
+                }
+            }
 
-            mat3x4[2][0] = in_mat[2][0] * ex_mat[1][0] + in_mat[2][1] * ex_mat[1][0] + in_mat[2][2] * ex_mat[2][0];
-            mat3x4[2][1] = in_mat[2][0] * ex_mat[1][1] + in_mat[2][1] * ex_mat[1][1] + in_mat[2][2] * ex_mat[2][1];
-            mat3x4[2][2] = in_mat[2][0] * ex_mat[1][2] + in_mat[2][1] * ex_mat[1][2] + in_mat[2][2] * ex_mat[2][2];
-            mat3x4[2][3] = in_mat[2][0] * ex_mat[1][3] + in_mat[2][1] * ex_mat[1][3] + in_mat[2][2] * ex_mat[2][3];
+            //mat3x4[0][0] = in_mat[0][0] * ex_mat[0][0] + in_mat[0][1] * ex_mat[1][0] + in_mat[0][2] * ex_mat[2][0];
+            //mat3x4[0][1] = in_mat[0][0] * ex_mat[0][1] + in_mat[0][1] * ex_mat[1][1] + in_mat[0][2] * ex_mat[2][1];
+            //mat3x4[0][2] = in_mat[0][0] * ex_mat[0][2] + in_mat[0][1] * ex_mat[1][2] + in_mat[0][2] * ex_mat[2][2];
+            //mat3x4[0][3] = in_mat[0][0] * ex_mat[0][3] + in_mat[0][1] * ex_mat[1][3] + in_mat[0][2] * ex_mat[2][3];
+
+            // mat3x4[1][0] = in_mat[1][0] * ex_mat[1][0] + in_mat[1][1] * ex_mat[1][0] + in_mat[1][2] * ex_mat[2][0];
+            // mat3x4[1][1] = in_mat[1][0] * ex_mat[1][1] + in_mat[1][1] * ex_mat[1][1] + in_mat[1][2] * ex_mat[2][1];
+            // mat3x4[1][2] = in_mat[1][0] * ex_mat[1][2] + in_mat[1][1] * ex_mat[1][2] + in_mat[1][2] * ex_mat[2][2];
+            // mat3x4[1][3] = in_mat[1][0] * ex_mat[1][3] + in_mat[1][1] * ex_mat[1][3] + in_mat[1][2] * ex_mat[2][3];
+
+            // mat3x4[2][0] = in_mat[2][0] * ex_mat[1][0] + in_mat[2][1] * ex_mat[1][0] + in_mat[2][2] * ex_mat[2][0];
+            // mat3x4[2][1] = in_mat[2][0] * ex_mat[1][1] + in_mat[2][1] * ex_mat[1][1] + in_mat[2][2] * ex_mat[2][1];
+            // mat3x4[2][2] = in_mat[2][0] * ex_mat[1][2] + in_mat[2][1] * ex_mat[1][2] + in_mat[2][2] * ex_mat[2][2];
+            // mat3x4[2][3] = in_mat[2][0] * ex_mat[1][3] + in_mat[2][1] * ex_mat[1][3] + in_mat[2][2] * ex_mat[2][3];
 
             return mat3x4;
         }
