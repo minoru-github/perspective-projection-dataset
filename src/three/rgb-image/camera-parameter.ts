@@ -1,4 +1,4 @@
-export class IntrinsicParameter {
+class IntrinsicParameter {
     fx_pix: number;
     fy_pix: number;
     cx_pix: number;
@@ -19,7 +19,7 @@ export class IntrinsicParameter {
     }
 }
 
-export class ExtrinsicParameter {
+class ExtrinsicParameter {
     r: number[][];
     tx_mm: number;
     ty_mm: number;
