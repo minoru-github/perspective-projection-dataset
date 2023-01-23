@@ -10,7 +10,6 @@ class Depth {
         "y_m": 0.0,
         "z_m": 0.0
     };
-    frames: number = 0;
     constructor() {
         this.data = new Array<File>();
     }
@@ -18,7 +17,6 @@ class Depth {
     addData(file: File) {
         return new Promise<File>((resolve) => {
             this.data.push(file);
-            this.frames += 1;
             resolve(file);
         })
     }
@@ -36,11 +34,10 @@ class Depth {
         })
     }
 
-    draw(frame: number) {
-        console.assert(this.frames >= frame, "depth sensor : wrong frame is selected");
+    draw() {
         console.assert(this.data.length > 0, "depth sensor : data length is 0");
 
-        const promise = this.loadPcd(this.data[frame]);
+        const promise = this.loadPcd(this.data[0]);
         promise.then((pcdFiles: string) => {
             const { xyzVec, rgbVec } = this.extractData(pcdFiles);
 

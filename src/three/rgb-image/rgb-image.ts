@@ -4,19 +4,21 @@ import { CameraParameter } from "./camera-parameter";
 import { computeDot } from "../math/matrix";
 
 class RgbImage {
-    data: File[] = new Array();
+    data: File | null = null;
+    path: string = "";
     camera_param: CameraParameter | null = null;
 
-    frames: number = 0;
     constructor() {
-        this.data = new Array<File>();
+
     }
 
     addData(file: File) {
         return new Promise<File>((resolve) => {
-            this.data.push(file);
-            this.frames += 1;
-            resolve(file);
+            this.data = file;
+            createDataURL(this.data).then((path: string) => {
+                this.path = path;
+                resolve(file);
+            });
         })
     }
 
@@ -24,15 +26,24 @@ class RgbImage {
         this.camera_param = camera_param;
     }
 
-    draw(frame: number) {
-        if (this.frames < frame || this.data.length == 0) {
-            console.assert("invalid data");
-        }
-        return drawRgbImages(this.data[frame]);
-    }
+    draw() {
+        return setImageToCanvas(this.path);
 
-    totalFrames() {
-        return this.frames;
+        function setImageToCanvas(path: string) {
+            const image = new Image();
+            image.src = path;
+            return new Promise<void>((resolve) => {
+                image.onload = function () {
+                    const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+                    let context = canvas.getContext("2d");
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    if (context != null) {
+                        resolve(context?.drawImage(image, 0, 0));
+                    }
+                }
+            })
+        }
     }
 
     projectToImage(x_m: number, y_m: number, z_m: number) {
@@ -80,51 +91,17 @@ class RgbImage {
     }
 }
 
-function drawRgbImages(file: File) {
-    const result = file.name.match(/image/);
-    if (result == null) {
-        console.assert('failed at drawRgbImages');
-    }
-
-    return new Promise<void>((resolve) => {
-        if (image.camera_param != null) {
-            drawCameraFov(image.camera_param.pos, image.camera_param.fov);
-        }
-
-        const promise = createDataURL(file);
-        promise.then((path: string) => {
-            resolve(setImageToCanvas(path));
-        })
-    })
-
-    function createDataURL(file: File) {
-        const promise = new Promise<string>((resolve, reject) => {
-            //FileReaderオブジェクトの作成
-            const reader = new FileReader();
-            // onload = 読み込み完了したときに実行されるイベント
-            reader.onload = (event) => {
-                resolve(event.target?.result as string);
-            };
-            reader.readAsDataURL(file);
-        });
-        return promise;
-    }
-
-    function setImageToCanvas(path: string) {
-        const image = new Image();
-        image.src = path;
-        return new Promise<void>((resolve) => {
-            image.onload = function () {
-                const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
-                let context = canvas.getContext("2d");
-                canvas.width = image.width;
-                canvas.height = image.height;
-                if (context != null) {
-                    resolve(context?.drawImage(image, 0, 0));
-                }
-            }
-        })
-    }
+function createDataURL(file: File) {
+    const promise = new Promise<string>((resolve, reject) => {
+        //FileReaderオブジェクトの作成
+        const reader = new FileReader();
+        // onload = 読み込み完了したときに実行されるイベント
+        reader.onload = (event) => {
+            resolve(event.target?.result as string);
+        };
+        reader.readAsDataURL(file);
+    });
+    return promise;
 }
 
 export function addLinesToImage(points: THREE.Vector3[]) {
