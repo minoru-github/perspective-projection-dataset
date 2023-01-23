@@ -1,41 +1,64 @@
-import { depth } from "../xyz-space/depth/depth";
-import { image } from "../rgb-image/rgb-image";
+import { Depth } from "../xyz-space/depth/depth";
+import { RgbImage } from "../rgb-image/rgb-image";
+import { DepthSensorParameter } from "../xyz-space/depth/depth-sensor-parameter";
 import { CameraParameter } from "../rgb-image/camera-parameter";
 
-export function onChangeInputFiles(event: any) {
+export let image: RgbImage | null = null;
+
+export async function onChangeInputFiles(event: any) {
     let files = event.target.files as FileList;
 
-    const results = new Array<Promise<any>>();
+    let depth: Depth | null = null;
+    let depthSensorParam: DepthSensorParameter | null = null;
+    let cameraParam: CameraParameter | null = null;
+
     for (let index = 0; index < files.length; index++) {
         const file = files[index];
-        const result = parseFile(file);
 
-        results.push(result);
+        if (file.name.match(/\.pcd/)) {
+            depth = new Depth(file);
+        } else if (file.name.match(/\.(png|bmp|jpg)/)) {
+            image = new RgbImage(file);
+        } else if (file.name.match(/\.json/) && file.name.match(/depth/)) {
+            depthSensorParam = new DepthSensorParameter(file);
+        } else if (file.name.match(/\.json/) && file.name.match(/image/)) {
+            cameraParam = new CameraParameter(file);
+        } else {
+            // README.md等描画に関係ないファイル読み込んだとき用
+            console.assert(); ("Unexpexted filename extention.");
+        }
     }
 
-    function parseFile(file: File) {
-        return new Promise<any>((resolve, reject) => {
-            if (file.name.match(/\.pcd/)) {
-                return resolve(depth.addData(file));
-            } else if (file.name.match(/\.(png|bmp|jpg)/)) {
-                return resolve(image.addData(file));
-            } else if (file.name.match(/\.json/)) {
-                if (file.name.match(/depth/)) {
-                    return resolve(depth.setCalib(file));
-                } else if (file.name.match(/image/)) {
-                    const camera_param = new CameraParameter(file);
-                    return resolve(image.setCalib(camera_param));
-                }
+    Promise.resolve()
+        .then(() => {
+            if (depth != null && image != null && depthSensorParam != null && cameraParam != null) {
+                return Promise.resolve();
             } else {
-                // README.md等描画に関係ないファイル読み込んだとき用
-                return reject("Unexpexted filename extention.");
+                return Promise.reject();
             }
-        })
-    }
+        }).then(() => {
+            cameraParam?.parse().then(() => {
+                if (image != null && cameraParam != null) {
+                    image.setCalib(cameraParam);
+                    return Promise.resolve();
+                }
+            })
+        }).then(() => {
+            depth?.generatePoints().then(() => {
+                image?.draw()
+                    .then(() => {
+                        depth?.draw()
+                    })
+                    .then(() => {
+                        if (depth != null && image != null) {
+                            const points = depth.getPoints();
+                            image.addPointsToImage(points);
+                        }
+                    });
+            });
+        });
 
-    Promise.all(results).then(() => {
-        const promise = image.draw();
-        promise.then(() => { depth.draw() });
-    })
 
+    //const promise = image.draw();
+    //promise.then(() => { depth.draw() });
 }

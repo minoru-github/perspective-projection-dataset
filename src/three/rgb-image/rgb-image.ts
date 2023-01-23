@@ -1,33 +1,21 @@
-import { drawCameraFov } from "../xyz-space/camerasThreeJS/camera-fov";
-import { depth } from "../xyz-space/depth/depth";
 import { CameraParameter } from "./camera-parameter";
 import { computeDot } from "../math/matrix";
 
-class RgbImage {
-    data: File | null = null;
-    path: string = "";
+export class RgbImage {
+    file: File;
     camera_param: CameraParameter | null = null;
 
-    constructor() {
-
-    }
-
-    addData(file: File) {
-        return new Promise<File>((resolve) => {
-            this.data = file;
-            createDataURL(this.data).then((path: string) => {
-                this.path = path;
-                resolve(file);
-            });
-        })
+    constructor(file: File) {
+        this.file = file;
     }
 
     setCalib(camera_param: CameraParameter) {
         this.camera_param = camera_param;
     }
 
-    draw() {
-        return setImageToCanvas(this.path);
+    async draw() {
+        const path = await createDataURL(this.file);
+        return await setImageToCanvas(path);
 
         function setImageToCanvas(path: string) {
             const image = new Image();
@@ -47,29 +35,15 @@ class RgbImage {
     }
 
     projectToImage(x_m: number, y_m: number, z_m: number) {
-        const computeProjectMatrix = () => {
-            let mat3x4: number[][] = [
-                [0.0, 0.0, 0.0, 0.0,],
-                [0.0, 0.0, 0.0, 0.0,],
-                [0.0, 0.0, 0.0, 0.0,],
-            ];
-            if (this.camera_param == null) {
-                return mat3x4;
-            }
-            if (this.camera_param.intrinsic == null || this.camera_param.extrinsic == null) {
-                return mat3x4;
-            }
-
-            mat3x4 = computeDot(
-                this.camera_param.intrinsic.get_matrix(),
-                this.camera_param.extrinsic.get_matrix()
-            );
-
-            return mat3x4;
-        }
-
         const projectFromXYZ = (x_m: number, y_m: number, z_m: number) => {
-            const mat3x4 = computeProjectMatrix();
+            if (this.camera_param == null) {
+                console.assert("camera param is null");
+                const x_pix = 0;
+                const y_pix = 0;
+                return { x_pix, y_pix };
+            }
+
+            const mat3x4 = this.camera_param.getProjectionMatrix();
             // three.jsとcamera座標系のxyが逆なので符号反転
             const xyz = [
                 [-1 * x_m],
@@ -85,9 +59,40 @@ class RgbImage {
             return { x_pix, y_pix };
         }
 
-        // lidar
         const { x_pix, y_pix } = projectFromXYZ(x_m, y_m, z_m);
         return { x_pix, y_pix };
+    }
+
+    addLinesToImage(points: THREE.Vector3[]) {
+        const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+        let context = canvas.getContext("2d");
+        if (context != null) {
+            context.fillStyle = "red";
+            context.beginPath();
+            context.strokeStyle = "#00FFFF";
+            for (let index = 0; index < points.length; index++) {
+                const { x_pix, y_pix } = this.projectToImage(points[index].x, points[index].y, points[index].z);
+
+                if (index == 0) {
+                    context.moveTo(x_pix, y_pix);
+                }
+                context.lineTo(x_pix, y_pix);
+            }
+            context.stroke();
+        }
+    }
+
+    addPointsToImage(points: THREE.Vector3[]) {
+        const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
+        let context = canvas.getContext("2d");
+        if (context != null) {
+            context.fillStyle = "red";
+            context.beginPath();
+            for (let index = 0; index < points.length; index++) {
+                const { x_pix, y_pix } = this.projectToImage(points[index].x, points[index].y, points[index].z);
+                context.fillRect(x_pix - 5, y_pix - 5, 10, 10);
+            }
+        }
     }
 }
 
@@ -104,40 +109,4 @@ function createDataURL(file: File) {
     return promise;
 }
 
-export function addLinesToImage(points: THREE.Vector3[]) {
-    const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
-    console.log(canvas);
-    let context = canvas.getContext("2d");
-    if (context != null) {
-        context.fillStyle = "red";
-        context.beginPath();
-        context.strokeStyle = "#00FFFF";
-        for (let index = 0; index < points.length; index++) {
-            const { x_m, y_m, z_m } = depth.toDepthSensorCoord(points[index].x, points[index].y, points[index].z);
-            const { x_pix, y_pix } = image.projectToImage(x_m, y_m, z_m);
 
-            if (index == 0) {
-                context.moveTo(x_pix, y_pix);
-            }
-            context.lineTo(x_pix, y_pix);
-        }
-        context.stroke();
-    }
-}
-
-export function addPointsToImage(points: THREE.Vector3[]) {
-    const canvas = document.getElementById('imageCanvas') as HTMLCanvasElement;
-    console.log(canvas);
-    let context = canvas.getContext("2d");
-    if (context != null) {
-        context.fillStyle = "red";
-        context.beginPath();
-        for (let index = 0; index < points.length; index++) {
-            const { x_m, y_m, z_m } = depth.toDepthSensorCoord(points[index].x, points[index].y, points[index].z);
-            const { x_pix, y_pix } = image.projectToImage(x_m, y_m, z_m);
-            context.fillRect(x_pix - 5, y_pix - 5, 10, 10);
-        }
-    }
-}
-
-export const image = new RgbImage();

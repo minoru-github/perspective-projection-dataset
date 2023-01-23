@@ -1,3 +1,5 @@
+import { computeDot } from "../math/matrix";
+
 class IntrinsicParameter {
     fx_pix: number;
     fy_pix: number;
@@ -45,6 +47,8 @@ class ExtrinsicParameter {
 }
 
 export class CameraParameter {
+    promiseData: Promise<string>;
+    mat3x4: number[][] = [];
     pos = {
         x_m: 0.0,
         y_m: 0.0,
@@ -59,8 +63,11 @@ export class CameraParameter {
     intrinsic: IntrinsicParameter | null = null;
     extrinsic: ExtrinsicParameter | null = null;
     constructor(file: File) {
-        const promise = file.text();
-        promise.then((jsonString) => {
+        this.promiseData = file.text();
+    }
+
+    parse() {
+        return this.promiseData.then((jsonString) => {
             const json = JSON.parse(jsonString);
             this.pos.x_m = json.sensor_position.x_m;
             this.pos.y_m = json.sensor_position.y_m;
@@ -72,6 +79,34 @@ export class CameraParameter {
             this.intrinsic = new IntrinsicParameter(json.focal_length.fx_pix, json.focal_length.fy_pix, json.optical_center.cx_pix, json.optical_center.cy_pix)
             // TODO 仮
             this.extrinsic = new ExtrinsicParameter(0.0, 0.0, 0.0);
+
+            this.mat3x4 = this.computeProjectMatrix();
+
+            return Promise.resolve();
         });
+    }
+
+    computeProjectMatrix = () => {
+        let mat3x4: number[][] = [
+            [0.0, 0.0, 0.0, 0.0,],
+            [0.0, 0.0, 0.0, 0.0,],
+            [0.0, 0.0, 0.0, 0.0,],
+        ];
+
+        if (this.intrinsic == null || this.extrinsic == null) {
+            console.assert("intrinsic or extrinsic camera parameter is null");
+            return mat3x4;
+        }
+
+        mat3x4 = computeDot(
+            this.intrinsic.get_matrix(),
+            this.extrinsic.get_matrix()
+        );
+
+        return mat3x4;
+    };
+
+    getProjectionMatrix() {
+        return this.mat3x4;
     }
 }

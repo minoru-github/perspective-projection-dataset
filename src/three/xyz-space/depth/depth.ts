@@ -1,95 +1,72 @@
 import * as THREE from "three";
 import { Float32BufferAttribute } from "three";
-import { addPointsToImage } from "../../rgb-image/rgb-image";
 import { addPointsToXyzSpace } from "../xyz-space";
 
-class Depth {
-    data: Array<File>;
+export class Depth {
+    file: File;
+    xyzVec1D: number[] = [];
+    rgbVec1D: number[] = [];
+    points = new Array<THREE.Vector3>;
+
     sensor_position = {
         "x_m": 0.0,
         "y_m": 0.0,
         "z_m": 0.0
     };
-    constructor() {
-        this.data = new Array<File>();
+    constructor(file: File) {
+        this.file = file;
     }
 
-    addData(file: File) {
-        return new Promise<File>((resolve) => {
-            this.data.push(file);
-            resolve(file);
-        })
+    async generatePoints() {
+        const data = await this.file.text();
+        const { xyzVec1D, rgbVec1D } = this.extractData(data);
+        this.xyzVec1D = xyzVec1D;
+        this.rgbVec1D = rgbVec1D;
+        const length = xyzVec1D.length / 3;
+        for (var i = 0; i < length; i++) {
+            const point = new THREE.Vector3(xyzVec1D[3 * i + 0], xyzVec1D[3 * i + 1], xyzVec1D[3 * i + 2]);
+            this.points.push(point);
+        }
+        return await Promise.resolve();
     }
 
-    setCalib(file: File) {
-        return new Promise<File>((resolve) => {
-            const promise = file.text();
-            promise.then((jsonString: string) => {
-                const json = JSON.parse(jsonString);
-                this.sensor_position.x_m = json.sensor_position.x_m;
-                this.sensor_position.y_m = json.sensor_position.y_m;
-                this.sensor_position.z_m = json.sensor_position.z_m;
-                resolve(file);
-            });
-        })
+    setCalib() {
+        // TODO
     }
 
     draw() {
-        console.assert(this.data.length > 0, "depth sensor : data length is 0");
-
-        const promise = this.loadPcd(this.data[0]);
-        promise.then((pcdFiles: string) => {
-            const { xyzVec, rgbVec } = this.extractData(pcdFiles);
-
-            this.addPcdToXyzSpace(xyzVec, rgbVec);
-            this.addPcdToImage(xyzVec);
-        });
+        this.addPcdToXyzSpace()
+        return Promise.resolve();
     }
 
-    loadPcd(file: File) {
-        return file.text();
+    addPcdToXyzSpace() {
+        this.generateTHREEPoints().then((threePoints: THREE.Points) => {
+            addPointsToXyzSpace(threePoints);
+        })
     }
 
-    addPcdToXyzSpace(xyzVec: number[], rgbVec: number[]) {
-        const points = this.addPcdToPoints(xyzVec, rgbVec);
-        addPointsToXyzSpace(points);
-    }
+    generateTHREEPoints = () => {
+        const geometry = new THREE.BufferGeometry();
+        geometry.name = "pcd";
+        const material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, color: 0xffffff });
+        const threePoints = new THREE.Points(geometry, material);
 
-    addPcdToImage(xyzVec: number[]) {
-        const points = new Array<THREE.Vector3>;
-        const length = xyzVec.length / 3;
-        for (var i = 0; i < length; i++) {
-            const point = new THREE.Vector3(xyzVec[3 * i + 0], xyzVec[3 * i + 1], xyzVec[3 * i + 2]);
-            points.push(point);
-        }
-        addPointsToImage(points);
-    }
-
-    addPcdToPoints = (xyzVec: number[], rgbVec: number[]) => {
-        const createPoints = () => {
-            const geometry = new THREE.BufferGeometry();
-            geometry.name = "pcd";
-            const material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, color: 0xffffff });
-            const points = new THREE.Points(geometry, material);
-            return points;
-        }
-
-        const points = createPoints();
-        if (xyzVec.length > 0 && rgbVec.length > 0) {
-            points.geometry.setAttribute("position", new Float32BufferAttribute(xyzVec, 3));
-            points.geometry.setAttribute("color", new Float32BufferAttribute(rgbVec, 3));
+        if (this.xyzVec1D.length > 0 && this.rgbVec1D.length > 0) {
+            threePoints.geometry.setAttribute("position", new Float32BufferAttribute(this.xyzVec1D, 3));
+            threePoints.geometry.setAttribute("color", new Float32BufferAttribute(this.rgbVec1D, 3));
         } else {
             alert("data is empty");
         }
-        return points;
+
+        return Promise.resolve(threePoints);
     }
 
-    extractData = (pcdFile: string) => {
+    extractData = (data: string) => {
         const headerOfPoints = "POINTS ";
-        const beginOfPoints = pcdFile.indexOf(headerOfPoints) + headerOfPoints.length;
+        const beginOfPoints = data.indexOf(headerOfPoints) + headerOfPoints.length;
         //pcdFile.match(/POINTS (.*)/);
         // ()で囲まれたところを抽出してくれる
-        const matchResultOfPoints = pcdFile.match(/POINTS (.*)/);
+        const matchResultOfPoints = data.match(/POINTS (.*)/);
         let points = 0;
         if (matchResultOfPoints != null) {
             points = parseInt(matchResultOfPoints[1]);
@@ -98,55 +75,49 @@ class Depth {
         // とりあえずascii固定
         const headerOfData = "DATA ascii";
         let lineFeedCode;
-        if (pcdFile.match(headerOfData + "\r\n")) {
+        if (data.match(headerOfData + "\r\n")) {
             lineFeedCode = "\r\n";
-        } else if (pcdFile.match(headerOfData + "\n")) {
+        } else if (data.match(headerOfData + "\n")) {
             lineFeedCode = "\n";
         } else {
             console.assert("改行コードが異常");
         }
 
-        const xyzVec = [];
-        const rgbVec = [];
+        const xyzVec1D = [];
+        const rgbVec1D = [];
 
-        const matchResultOfData = pcdFile.match(/DATA ascii(\n|\r\n)/);
+        const matchResultOfData = data.match(/DATA ascii(\n|\r\n)/);
         let beginOfData;
         let dataHeaderLength;
         if (matchResultOfData != null) {
             const dataHeader = matchResultOfData[0];
             dataHeaderLength = dataHeader.length;
-            beginOfData = pcdFile.search(/DATA ascii(\n|\r\n)/) + dataHeaderLength;
+            beginOfData = data.search(/DATA ascii(\n|\r\n)/) + dataHeaderLength;
         }
-        const dataVec = pcdFile.slice(beginOfData).split(/\n|\r\n/);
+        const dataVec = data.slice(beginOfData).split(/\n|\r\n/);
 
         for (let cnt = 0; cnt < points; cnt++) {
             const data = dataVec[cnt].split(" ");
             const x_m = parseFloat(data[1]) + this.sensor_position.x_m;
             const y_m = parseFloat(data[2]) + this.sensor_position.y_m;
             const z_m = parseFloat(data[0]) + this.sensor_position.z_m;
-            xyzVec.push(x_m);
-            xyzVec.push(y_m);
-            xyzVec.push(z_m);
+            xyzVec1D.push(x_m);
+            xyzVec1D.push(y_m);
+            xyzVec1D.push(z_m);
 
             const r = 1.0;
             const g = 0.5;
             const b = 0.0;
 
-            rgbVec.push(r);
-            rgbVec.push(g);
-            rgbVec.push(b);
+            rgbVec1D.push(r);
+            rgbVec1D.push(g);
+            rgbVec1D.push(b);
         }
 
-        return { xyzVec, rgbVec };
+        return { xyzVec1D, rgbVec1D };
     }
 
-    toDepthSensorCoord(inX_m: number, inY_m: number, inZ_m: number) {
-        //  測距センサーから路面におろしたところを本ツールの原点(ステカメの場合は真ん中)とする。座標系はthree.jsに従う。
-        const x_m = inX_m - this.sensor_position.x_m;
-        const y_m = inY_m - this.sensor_position.y_m;
-        const z_m = inZ_m - this.sensor_position.z_m;
-        return { x_m, y_m, z_m };
+    getPoints() {
+        return this.points;
     }
 }
-
-export const depth = new Depth();
