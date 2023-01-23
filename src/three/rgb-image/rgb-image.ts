@@ -1,22 +1,10 @@
 import { drawCameraFov } from "../xyz-space/camerasThreeJS/camera-fov";
 import { depth } from "../xyz-space/depth/depth";
-import { IntrinsicParameter, ExtrinsicParameter } from "../xyz-space/camerasThreeJS/camera-parameter";
+import { IntrinsicParameter, ExtrinsicParameter, CameraParameter } from "./camera-parameter";
 
 class RgbImage {
     data: File[] = new Array();
-    intrinsic_parameter: IntrinsicParameter | null = null;
-    extrinsic_parameter: ExtrinsicParameter | null = null;
-    sensor_position = {
-        "x_m": 0.0,
-        "y_m": 0.0,
-        "z_m": 0.0
-    };
-    fov = {
-        "x_deg": 0.0,
-        "y_deg": 0.0,
-        "x_rad": 0.0,
-        "y_rad": 0.0,
-    }
+    camera_param: CameraParameter | null = null;
 
     frames: number = 0;
     constructor() {
@@ -31,24 +19,8 @@ class RgbImage {
         })
     }
 
-    setCalib(file: File) {
-        return new Promise<File>((resolve) => {
-            const promise = file.text();
-            promise.then((jsonString) => {
-                const json = JSON.parse(jsonString);
-                this.sensor_position.x_m = json.sensor_position.x_m;
-                this.sensor_position.y_m = json.sensor_position.y_m;
-                this.sensor_position.z_m = json.sensor_position.z_m;
-                this.fov.x_deg = json.field_of_view.fovx_deg;
-                this.fov.y_deg = json.field_of_view.fovx_deg * (json.size.height_pix / json.size.width_pix);
-                this.fov.x_rad = this.fov.x_deg * Math.PI / 180;
-                this.fov.y_rad = this.fov.y_deg * Math.PI / 180;
-                this.intrinsic_parameter = new IntrinsicParameter(json.focal_length.fx_pix, json.focal_length.fy_pix, json.optical_center.cx_pix, json.optical_center.cy_pix)
-                // TODO 仮
-                this.extrinsic_parameter = new ExtrinsicParameter(0.0, 0.0, 0.0);
-                resolve(file);
-            })
-        })
+    setCalib(camera_param: CameraParameter) {
+        this.camera_param = camera_param;
     }
 
     draw(frame: number) {
@@ -69,11 +41,14 @@ class RgbImage {
                 [0.0, 0.0, 0.0, 0.0,],
                 [0.0, 0.0, 0.0, 0.0,],
             ];
-            if (this.intrinsic_parameter == null || this.extrinsic_parameter == null) {
+            if (this.camera_param == null) {
                 return mat3x4;
             }
-            let in_mat = this.intrinsic_parameter.get_matrix();
-            let ex_mat = this.extrinsic_parameter.get_matrix();
+            if (this.camera_param.intrinsic == null || this.camera_param.extrinsic == null) {
+                return mat3x4;
+            }
+            let in_mat = this.camera_param.intrinsic.get_matrix();
+            let ex_mat = this.camera_param.extrinsic.get_matrix();
             mat3x4[0][0] = in_mat[0][0] * ex_mat[0][0] + in_mat[0][1] * ex_mat[1][0] + in_mat[0][2] * ex_mat[2][0];
             mat3x4[0][1] = in_mat[0][0] * ex_mat[0][1] + in_mat[0][1] * ex_mat[1][1] + in_mat[0][2] * ex_mat[2][1];
             mat3x4[0][2] = in_mat[0][0] * ex_mat[0][2] + in_mat[0][1] * ex_mat[1][2] + in_mat[0][2] * ex_mat[2][2];
@@ -123,7 +98,9 @@ function drawRgbImages(file: File) {
     }
 
     return new Promise<void>((resolve) => {
-        drawCameraFov(image.sensor_position, image.fov);
+        if (image.camera_param != null) {
+            drawCameraFov(image.camera_param.pos, image.camera_param.fov);
+        }
 
         const promise = createDataURL(file);
         promise.then((path: string) => {
