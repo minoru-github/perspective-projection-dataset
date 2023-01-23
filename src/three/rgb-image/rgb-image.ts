@@ -1,6 +1,7 @@
 import { drawCameraFov } from "../xyz-space/camerasThreeJS/camera-fov";
 import { depth } from "../xyz-space/depth/depth";
-import { IntrinsicParameter, ExtrinsicParameter, CameraParameter } from "./camera-parameter";
+import { CameraParameter } from "./camera-parameter";
+import { computeDot } from "../math/matrix";
 
 class RgbImage {
     data: File[] = new Array();
@@ -77,29 +78,6 @@ class RgbImage {
         const { x_pix, y_pix } = projectFromXYZ(x_m, y_m, z_m);
         return { x_pix, y_pix };
     }
-}
-
-function computeDot(mat_a: number[][], mat_b: number[][]) {
-    const mat_a_col_size = mat_a.length;
-    const mat_b_row_size = mat_b[0].length;
-
-    const mat_out: number[][] = [];
-    for (var i = 0; i < mat_a_col_size; i++) {
-        mat_out[i] = [];
-        for (var j = 0; j < mat_b_row_size; j++) {
-            mat_out[i][j] = 0;
-        }
-    }
-
-    for (var i = 0; i < mat_a_col_size; i++) {
-        for (var j = 0; j < mat_b_row_size; j++) {
-            for (var k = 0; k < mat_a_col_size; k++) {
-                mat_out[i][j] += mat_a[i][k] * mat_b[k][j];
-            }
-        }
-    }
-
-    return mat_out;
 }
 
 function drawRgbImages(file: File) {
