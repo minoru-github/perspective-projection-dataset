@@ -1,14 +1,13 @@
 import * as THREE from "three";
+import { image } from "../../file-loader/file-loader";
 
 import { sceneXyz } from "../xyz-space";
-import { addLinesToImage } from "../../rgb-image/rgb-image";
 
 import { text } from "../../../html/element";
 import { Camera, Scene } from "three";
 
 function setBox() {
     // TODO: 右手座標系から左手座標系に変える
-    console.log(box3d.rotation.euler);
     const center_m = box3d.center_m;
     const size_m = box3d.size_m;
     const rotation = box3d.rotation;
@@ -16,7 +15,7 @@ function setBox() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addLinesToImage(points);
+    image?.addLinesToImage(points);
 }
 
 function setBox0() {
@@ -26,7 +25,7 @@ function setBox0() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addLinesToImage(points);
+    image?.addLinesToImage(points);
 }
 
 function setBox1() {
@@ -36,7 +35,7 @@ function setBox1() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addLinesToImage(points);
+    image?.addLinesToImage(points);
 }
 
 function setBox2() {
@@ -46,7 +45,7 @@ function setBox2() {
     addBoxToGroup(center_m, size_m, rotation);
 
     const points = createLinePoints(center_m, size_m, rotation);
-    addLinesToImage(points);
+    image?.addLinesToImage(points);
 }
 
 function setBox3() {
@@ -56,7 +55,7 @@ function setBox3() {
     addBoxToGroup(center_m, size_m, rotation);
     
     const points = createLinePoints(center_m, size_m, rotation);
-    addLinesToImage(points);
+    image?.addLinesToImage(points);
 }
 
 export const annotatedBoxes = new Array<THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial>>;
