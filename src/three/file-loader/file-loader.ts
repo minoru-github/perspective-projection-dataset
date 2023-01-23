@@ -1,10 +1,11 @@
 import { depth } from "../xyz-space/depth/depth";
 import { image } from "../rgb-image/rgb-image";
+import { CameraParameter } from "../rgb-image/camera-parameter";
 
 export function onChangeInputFiles(event: any) {
     let files = event.target.files as FileList;
 
-    const results = new Array<Promise<File>>();
+    const results = new Array<Promise<any>>();
     for (let index = 0; index < files.length; index++) {
         const file = files[index];
         const result = parseFile(file);
@@ -13,7 +14,7 @@ export function onChangeInputFiles(event: any) {
     }
 
     function parseFile(file: File) {
-        return new Promise<File>((resolve) => {
+        return new Promise<any>((resolve, reject) => {
             if (file.name.match(/\.pcd/)) {
                 return resolve(depth.addData(file));
             } else if (file.name.match(/\.(png|bmp|jpg)/)) {
@@ -22,11 +23,12 @@ export function onChangeInputFiles(event: any) {
                 if (file.name.match(/depth/)) {
                     return resolve(depth.setCalib(file));
                 } else if (file.name.match(/image/)) {
-                    return resolve(image.setCalib(file));
+                    const camera_param = new CameraParameter(file);
+                    return resolve(image.setCalib(camera_param));
                 }
             } else {
                 // README.md等描画に関係ないファイル読み込んだとき用
-                return resolve(file);
+                return reject("Unexpexted filename extention.");
             }
         })
     }
