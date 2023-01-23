@@ -35,6 +35,29 @@ class RgbImage {
     }
 
     projectToImage(x_m: number, y_m: number, z_m: number) {
+        function computeDot(mat_a: number[][], mat_b: number[][]) {
+            const mat_a_col_size = mat_a.length;
+            const mat_b_row_size = mat_b[0].length;
+
+            const mat_out: number[][] = [];
+            for (var i = 0; i < mat_a_col_size; i++) {
+                mat_out[i] = [];
+                for (var j = 0; j < mat_b_row_size; j++) {
+                    mat_out[i][j] = 0;
+                }
+            }
+
+            for (var i = 0; i < mat_a_col_size; i++) {
+                for (var j = 0; j < mat_b_row_size; j++) {
+                    for (var k = 0; k < mat_a_col_size; k++) {
+                        mat_out[i][j] += mat_a[i][k] * mat_b[k][j];
+                    }
+                }
+            }
+
+            return mat_out;
+        }
+
         const computeProjectMatrix = () => {
             const mat3x4: number[][] = [
                 [0.0, 0.0, 0.0, 0.0,],
@@ -55,6 +78,13 @@ class RgbImage {
                     for (var k = 0; k < 3; k++) {
                         mat3x4[i][j] += in_mat[i][k] * ex_mat[k][j];
                     }
+                }
+            }
+
+            let mat = computeDot(in_mat, ex_mat);
+            for (var i = 0; i < 3; i++) {
+                for (var j = 0; j < 4; j++) {
+                    console.assert(mat3x4[i][j] == mat[i][j], "i:", i, "j:", j, mat3x4[i][j], mat[i][j]);
                 }
             }
 
