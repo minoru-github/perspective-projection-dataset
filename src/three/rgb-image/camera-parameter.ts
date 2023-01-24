@@ -64,8 +64,8 @@ export class CameraParameter {
     constructor() {
 
     }
-    
-    async parse(file:File) {
+
+    async parse(file: File) {
         const jsonString = await file.text();
         const json = JSON.parse(jsonString);
         this.pos.x_m = json.sensor_position.x_m;
@@ -75,9 +75,18 @@ export class CameraParameter {
         this.fov.y_deg = json.field_of_view.fovx_deg * (json.size.height_pix / json.size.width_pix);
         this.fov.x_rad = this.fov.x_deg * Math.PI / 180;
         this.fov.y_rad = this.fov.y_deg * Math.PI / 180;
-        this.intrinsic = new IntrinsicParameter(json.focal_length.fx_pix, json.focal_length.fy_pix, json.optical_center.cx_pix, json.optical_center.cy_pix);
+        this.intrinsic = new IntrinsicParameter(
+            json.focal_length.fx_pix,
+            json.focal_length.fy_pix,
+            json.optical_center.cx_pix,
+            json.optical_center.cy_pix
+        );
         // TODO 仮
-        this.extrinsic = new ExtrinsicParameter(0, 0, 0);
+        this.extrinsic = new ExtrinsicParameter(
+            json.sensor_position.x_m,
+            json.sensor_position.y_m,
+            json.sensor_position.z_m
+        );
         this.mat3x4 = this.computeProjectMatrix();
         return await Promise.resolve();
     }
@@ -98,6 +107,11 @@ export class CameraParameter {
             this.intrinsic.get_matrix(),
             this.extrinsic.get_matrix()
         );
+
+        // console.log("intrinsic", this.intrinsic.get_matrix());
+        // console.log("extrinsic", this.extrinsic.get_matrix());
+        // console.log("mat3x4", mat3x4);
+
 
         return mat3x4;
     };
