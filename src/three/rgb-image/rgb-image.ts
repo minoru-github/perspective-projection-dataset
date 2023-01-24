@@ -2,15 +2,15 @@ import { CameraParameter } from "./camera-parameter";
 import { computeDot } from "../math/matrix";
 
 class RgbImage {
-    file: File | null = null;
+    path: string = "";
     camera_param: CameraParameter | null = null;
 
     constructor() {
 
     }
 
-    setData(file:File) {
-        this.file = file;
+    async parseToPath(file: File) {
+        this.path = await createDataURL(file);
     }
 
     setCalib(camera_param: CameraParameter) {
@@ -18,11 +18,11 @@ class RgbImage {
     }
 
     async draw() {
-        if (this.file == null) {
+        if (this.path == "") {
+            console.assert("image path is invalid");
             return Promise.reject();
         }
-        const path = await createDataURL(this.file);
-        return await setImageToCanvas(path);
+        return await setImageToCanvas(this.path);
 
         function setImageToCanvas(path: string) {
             const image = new Image();
