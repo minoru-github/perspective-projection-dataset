@@ -2,8 +2,7 @@ import * as THREE from "three";
 import { Float32BufferAttribute } from "three";
 import { addPointsToXyzSpace } from "../xyz-space";
 
-export class Depth {
-    file: File;
+class Depth {
     xyzVec1D: number[] = [];
     rgbVec1D: number[] = [];
     points = new Array<THREE.Vector3>;
@@ -13,12 +12,12 @@ export class Depth {
         "y_m": 0.0,
         "z_m": 0.0
     };
-    constructor(file: File) {
-        this.file = file;
+    constructor() {
+
     }
 
-    async generatePoints() {
-        const data = await this.file.text();
+    async parse(file: File) {
+        const data = await file.text();
         const { xyzVec1D, rgbVec1D } = this.extractData(data);
         this.xyzVec1D = xyzVec1D;
         this.rgbVec1D = rgbVec1D;
@@ -121,3 +120,5 @@ export class Depth {
         return this.points;
     }
 }
+
+export const depth = new Depth();

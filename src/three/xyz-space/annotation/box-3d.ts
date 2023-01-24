@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { image } from "../../file-loader/file-loader";
+import { image } from "../../rgb-image/rgb-image";
 
 import { sceneXyz } from "../xyz-space";
 
