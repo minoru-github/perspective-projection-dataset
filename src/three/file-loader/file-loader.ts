@@ -1,24 +1,21 @@
-import { Depth } from "../xyz-space/depth/depth";
-import { RgbImage } from "../rgb-image/rgb-image";
+import { depth } from "../xyz-space/depth/depth";
+import { image } from "../rgb-image/rgb-image";
 import { DepthSensorParameter } from "../xyz-space/depth/depth-sensor-parameter";
 import { CameraParameter } from "../rgb-image/camera-parameter";
-
-export let image: RgbImage | null = null;
 
 export async function onChangeInputFiles(event: any) {
     let files = event.target.files as FileList;
 
-    let depth: Depth | null = null;
-    let depthSensorParam: DepthSensorParameter | null = null;
+     let depthSensorParam: DepthSensorParameter | null = null;
     let cameraParam: CameraParameter | null = null;
 
     for (let index = 0; index < files.length; index++) {
         const file = files[index];
 
         if (file.name.match(/\.pcd/)) {
-            depth = new Depth(file);
+            depth.setData(file);
         } else if (file.name.match(/\.(png|bmp|jpg)/)) {
-            image = new RgbImage(file);
+            image.setData(file);
         } else if (file.name.match(/\.json/) && file.name.match(/depth/)) {
             depthSensorParam = new DepthSensorParameter(file);
         } else if (file.name.match(/\.json/) && file.name.match(/image/)) {

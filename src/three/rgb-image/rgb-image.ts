@@ -1,11 +1,15 @@
 import { CameraParameter } from "./camera-parameter";
 import { computeDot } from "../math/matrix";
 
-export class RgbImage {
-    file: File;
+class RgbImage {
+    file: File | null = null;
     camera_param: CameraParameter | null = null;
 
-    constructor(file: File) {
+    constructor() {
+
+    }
+
+    setData(file:File) {
         this.file = file;
     }
 
@@ -14,6 +18,9 @@ export class RgbImage {
     }
 
     async draw() {
+        if (this.file == null) {
+            return Promise.reject();
+        }
         const path = await createDataURL(this.file);
         return await setImageToCanvas(path);
 
@@ -109,4 +116,4 @@ function createDataURL(file: File) {
     return promise;
 }
 
-
+export const image = new RgbImage();
