@@ -1,5 +1,6 @@
 import { CameraParameter } from "./camera-parameter";
 import { computeDot } from "../math/matrix";
+import { drawCameraFov } from "../xyz-space/camerasThreeJS/camera-fov";
 
 class RgbImage {
     path: string = "";
@@ -16,12 +17,18 @@ class RgbImage {
     setCalib(camera_param: CameraParameter) {
         this.camera_param = camera_param;
     }
-
+    
     async draw() {
         if (this.path == "") {
             console.assert("image path is invalid");
             return Promise.reject();
         }
+        if (this.camera_param == null) {
+            console.assert("camera param is null");
+            return Promise.reject();
+        }
+        
+        drawCameraFov(this.camera_param.pos, this.camera_param.fov);
         return await setImageToCanvas(this.path);
 
         function setImageToCanvas(path: string) {
