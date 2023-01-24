@@ -59,10 +59,12 @@ class RgbImage {
 
             const mat3x4 = this.camera_param.getProjectionMatrix();
             // three.jsとcamera座標系のxyが逆なので符号反転
+            // 同次座標系にするために最後に一個次元追加
             const xyz = [
                 [-1 * x_m],
                 [-1 * y_m],
                 [z_m],
+                [1],
             ];
 
             // xyzとの行列積計算して、z'で割って同次座標系にする
