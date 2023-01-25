@@ -53,7 +53,7 @@ function setBox3() {
     const size_m = new THREE.Vector3(0.3, 1.2, 0.6);
     const rotation = new Rotation(0.0, 0.0, 0);
     addBoxToGroup(center_m, size_m, rotation);
-    
+
     const points = createLinePoints(center_m, size_m, rotation);
     image?.addLinesToImage(points);
 }
@@ -61,9 +61,9 @@ function setBox3() {
 export const annotatedBoxes = new Array<THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial>>;
 function addBoxToGroup(center_m: THREE.Vector3, size_m: THREE.Vector3, rotation: Rotation) {
     const geometry = new THREE.BoxGeometry(size_m.x, size_m.y, size_m.z);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ffff,transparent:true,opacity:0.4 });
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.4 });
     const box = new THREE.Mesh(geometry, material);
-    box.position.set(center_m.x, center_m.y + size_m.y / 2, center_m.z);
+    box.position.set(center_m.x, center_m.y, center_m.z);
     box.setRotationFromEuler(rotation.euler);
     box.name = "annotatedBox";
     annotatedBoxes.push(box);
@@ -81,15 +81,15 @@ function addBoxToGroup(center_m: THREE.Vector3, size_m: THREE.Vector3, rotation:
 }
 
 function createLinePoints(center: THREE.Vector3, size: THREE.Vector3, rotation: Rotation) {
-    const p0 = new THREE.Vector3(center.x - size.x / 2, center.y, center.z - size.z / 2);
-    const p1 = new THREE.Vector3(center.x - size.x / 2, center.y, center.z + size.z / 2);
-    const p2 = new THREE.Vector3(center.x + size.x / 2, center.y, center.z + size.z / 2);
-    const p3 = new THREE.Vector3(center.x + size.x / 2, center.y, center.z - size.z / 2);
+    const p0 = new THREE.Vector3(center.x - size.x / 2, center.y - size.y / 2, center.z - size.z / 2);
+    const p1 = new THREE.Vector3(center.x - size.x / 2, center.y - size.y / 2, center.z + size.z / 2);
+    const p2 = new THREE.Vector3(center.x + size.x / 2, center.y - size.y / 2, center.z + size.z / 2);
+    const p3 = new THREE.Vector3(center.x + size.x / 2, center.y - size.y / 2, center.z - size.z / 2);
 
-    const p4 = new THREE.Vector3(center.x - size.x / 2, center.y + size.y, center.z - size.z / 2);
-    const p5 = new THREE.Vector3(center.x - size.x / 2, center.y + size.y, center.z + size.z / 2);
-    const p6 = new THREE.Vector3(center.x + size.x / 2, center.y + size.y, center.z + size.z / 2);
-    const p7 = new THREE.Vector3(center.x + size.x / 2, center.y + size.y, center.z - size.z / 2);
+    const p4 = new THREE.Vector3(center.x - size.x / 2, center.y + size.y / 2, center.z - size.z / 2);
+    const p5 = new THREE.Vector3(center.x - size.x / 2, center.y + size.y / 2, center.z + size.z / 2);
+    const p6 = new THREE.Vector3(center.x + size.x / 2, center.y + size.y / 2, center.z + size.z / 2);
+    const p7 = new THREE.Vector3(center.x + size.x / 2, center.y + size.y / 2, center.z - size.z / 2);
 
     const vertexVec = new Array<THREE.Vector3>;
     vertexVec.push(p0);
@@ -171,7 +171,7 @@ export const box3d = {
     x_m: 0,
     y_m: -1,
     z_m: 4,
-    center_m: new THREE.Vector3(0, -1, 5),
+    center_m: new THREE.Vector3(0, 0, 5),
     w_m: 2.0,
     h_m: 2.0,
     d_m: 2.0,
@@ -231,7 +231,7 @@ function handleMouseDown(event: any) {
 }
 
 const raycaster = new THREE.Raycaster();
-export const searchBoxAtCursor = (scene:Scene, camera:Camera) => {
+export const searchBoxAtCursor = (scene: Scene, camera: Camera) => {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(scene.children);
     intersectedObject = undefined;
