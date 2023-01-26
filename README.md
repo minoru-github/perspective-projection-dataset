@@ -1,6 +1,8 @@
 # perspective-projection-dataset
 
+<!--
 <https://minoru-github.github.io/perspective-projection-dataset/>
+-->
 
 + Purpose
   + generate pcd and image dataset
