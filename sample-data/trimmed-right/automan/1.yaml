@@ -9,7 +9,7 @@ CameraMat: !!opencv-matrix
    rows: 3
    cols: 3
    dt: d
-   data: [400.0, 0.0, 400.0, 0.0, 200.0, 200.0, 0.0, 0.0, 1.0]
+   data: [400.0, 0.0, 200.0, 0.0, 400.0, 200.0, 0.0, 0.0, 1.0]
 DistCoeff: !!opencv-matrix
    rows: 5
    cols: 1
