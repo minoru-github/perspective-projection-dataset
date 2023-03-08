@@ -97,9 +97,9 @@ class Depth {
 
         for (let cnt = 0; cnt < points; cnt++) {
             const data = dataVec[cnt].split(" ");
-            const x_m = parseFloat(data[1]) + this.sensor_position.x_m;
-            const y_m = parseFloat(data[2]) + this.sensor_position.y_m;
-            const z_m = parseFloat(data[0]) + this.sensor_position.z_m;
+            const x_m = parseFloat(data[0]);
+            const y_m = parseFloat(data[1]);
+            const z_m = parseFloat(data[2]);
             xyzVec1D.push(x_m);
             xyzVec1D.push(y_m);
             xyzVec1D.push(z_m);
