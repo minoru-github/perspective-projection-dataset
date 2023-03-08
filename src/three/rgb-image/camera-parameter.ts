@@ -108,11 +108,6 @@ export class CameraParameter {
             this.extrinsic.get_matrix()
         );
 
-        // console.log("intrinsic", this.intrinsic.get_matrix());
-        // console.log("extrinsic", this.extrinsic.get_matrix());
-        // console.log("mat3x4", mat3x4);
-
-
         return mat3x4;
     };
 
