@@ -1,7 +1,7 @@
 {
-  "name": "three-app",
+  "name": "perspective-projection-dataset",
   "version": "1.0.0",
-  "description": "three.jsを練習",
+  "description": "3Dアノテツールの動作確認用データセット",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/minoru-github/three-app.git"
+    "url": "git+https://github.com/perspective-projection-dataset/perspective-projection-dataset.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/minoru-github/three-app/issues"
+    "url": "https://github.com/minoru-github/perspective-projection-dataset/issues"
   },
-  "homepage": "https://minoru-github.github.io.three-app",
+  "homepage": "https://minoru-github.github.io/perspective-projection-dataset",
   "devDependencies": {
     "@types/dat.gui": "^0.7.7",
     "@types/three": "^0.148.1",
