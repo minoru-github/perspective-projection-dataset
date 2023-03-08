@@ -1,21 +1,21 @@
 {
-    "kind": "rgb_camera",
-    "size": {
+    "Kind": "rgb_camera",
+    "Size": {
         "width_pix": 600,
         "height_pix": 300
     },
-    "focal_length": {
+    "FocalLength": {
         "fx_pix": 400.0,
         "fy_pix": 400.0
     },
-    "optical_center": {
+    "OpticalCenter": {
         "cx_pix": 200.0,
         "cy_pix": 100.0
     },
-    "field_of_view": {
+    "FieldOfView": {
         "fovx_deg": 90
     },
-    "sensor_position": {
+    "SensorPosition": {
         "x_m": 0.0,
         "y_m": 0.0,
         "z_m": 0.0
