@@ -12,9 +12,6 @@
         "cx_pix": 400.0,
         "cy_pix": 100.0
     },
-    "FieldOfView": {
-        "fovx_deg": 90
-    },
     "SensorPosition": {
         "x_m": 0.0,
         "y_m": 0.0,
