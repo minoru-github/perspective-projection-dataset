@@ -1,5 +1,9 @@
 {
-    "Kind": "rgb_camera",
+    "CameraKind": "rgb_camera",
+    "CoordinateSystem": {
+        "xyz": "right-handed",
+        "iamge": "top-left-origin"
+    },
     "Size": {
         "width_pix": 800,
         "height_pix": 400
@@ -11,9 +15,6 @@
     "OpticalCenter": {
         "cx_pix": 400.0,
         "cy_pix": 200.0
-    },
-    "FieldOfView": {
-        "fovx_deg": 90
     },
     "SensorPosition": {
         "x_m": 0.0,

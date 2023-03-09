@@ -71,10 +71,10 @@ export class CameraParameter {
         this.pos.x_m = json.SensorPosition.x_m;
         this.pos.y_m = json.SensorPosition.y_m;
         this.pos.z_m = json.SensorPosition.z_m;
-        this.fov.x_deg = json.FieldOfView.fovx_deg;
-        this.fov.y_deg = json.FieldOfView.fovx_deg * (json.Size.height_pix / json.Size.width_pix);
-        this.fov.x_rad = this.fov.x_deg * Math.PI / 180;
-        this.fov.y_rad = this.fov.y_deg * Math.PI / 180;
+        this.fov.x_rad = this.computeFoV_rad(json.FocalLength.fx_pix, json.Size.width_pix);
+        this.fov.y_rad = this.fov.x_rad * (json.Size.height_pix / json.Size.width_pix);
+        this.fov.x_deg = this.fov.x_rad * 180 / Math.PI;
+        this.fov.y_deg = this.fov.y_rad * 180 / Math.PI;
         this.intrinsic = new IntrinsicParameter(
             json.FocalLength.fx_pix,
             json.FocalLength.fy_pix,
@@ -89,6 +89,12 @@ export class CameraParameter {
         );
         this.mat3x4 = this.computeProjectMatrix();
         return await Promise.resolve();
+    }
+
+    computeFoV_rad = (fx_pix: number, width_pix: number) => {
+        let half_width_pix = width_pix / 2;
+        let fov_rad = 2*Math.atan(half_width_pix / fx_pix);
+        return fov_rad;
     }
 
     computeProjectMatrix = () => {
